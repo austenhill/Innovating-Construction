@@ -1,16 +1,18 @@
-# Operate Legs will be called with an argument. Options are: -e --extend ; -r --retract
+# Operate Legs will be called with an argument. Options are: -e --extend ; -c --close
 # operatelegs.py --extend or operatelegs.py -e
-# operatelegs.py --retract or operatelegs.py -r
+# operatelegs.py --close or operatelegs.py -c
+# C for close also means to retract
 
 # Initialize
 import RPi.GPIO as GPIO
 import sys, getopt
+import time
 GPIO.setmode (GPIO.BOARD)
 
 # Argument list with long and short options
 argumentList = sys.argv[1:]
-options = "er:"
-long_options = ["extend", "retract"]
+options = "ec:"
+long_options = ["extend", "close"]
 
 # Leg-pin assignments:
 legPins = {
@@ -35,6 +37,8 @@ def extend():
     GPIO.output(legPins['backRightExtend'], GPIO.LOW)
     GPIO.output(legPins['frontLeftExtend'], GPIO.LOW)
     GPIO.output(legPins['frontRightExtend'], GPIO.LOW)
+    time.sleep (10)
+    GPIO.cleanup()
     return
 
 # Retract legs function
@@ -43,9 +47,12 @@ def retract():
     GPIO.output(legPins['backRightRetract'], GPIO.LOW)
     GPIO.output(legPins['frontLeftRetract'], GPIO.LOW)
     GPIO.output(legPins['frontRightRetract'], GPIO.LOW)
+    time.sleep (10)
+    GPIO.cleanup()
     return
 
 # Parse the argument and call the appropriate function to operate the legs
+# For close operation just use --close for the argument
 try:
 
 	arguments, values = getopt.getopt(argumentList, options, long_options)
@@ -55,7 +62,7 @@ try:
 		if currentArgument in ("-e", "--extend"):
 			extend()
 			
-		elif currentArgument in ("-r", "--retract"):
+		elif currentArgument in ("-c", "--close"):
 			retract()
 			
 except getopt.error as err:
